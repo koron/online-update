@@ -10,8 +10,11 @@ import logging
 import os
 import time
 
-CHECK_URL = 'http://www.kaoriya.net/software/vim/vim73w64'
-LOCAL_FILE = 'vim73w64.zip'
+URLROOT = 'http://files.kaoriya.net/vim/'
+VIMZIP = 'vim73-kaoriya-win64.zip'
+
+CHECK_URL = URLROOT + VIMZIP
+LOCAL_FILE = VIMZIP
 
 UPSTATUS_STAY       = 0
 UPSTATUS_UPDATED    = 1
@@ -29,13 +32,15 @@ def get_check_header(path):
     if st == None:
         return {}
     else:
-        dt = datetime.fromtimestamp(st.st_mtime)
-        since = dt.strftime('%a, %d %b %Y %H:%M:%S +0900')
-        return { 'If-Modified-Since': since }
+        dt = datetime.fromtimestamp(st.st_mtime - 9 * 3600)
+        since = dt.strftime('%a, %d %b %Y %H:%M:%S GMT')
+        return { 'Accept': '*/*', 'If-Modified-Since': since }
 
 def check_upstatus(url, path):
     p = urlparse(url)
     c = httplib.HTTPConnection(p[1])
+    h = get_check_header(path)
+    #c.set_debuglevel(1)
     c.request('GET', p[2], None, get_check_header(path))
     s = UPSTATUS_ERROR
     r = c.getresponse()
@@ -63,10 +68,7 @@ def update_vim(resp, path):
     download_as(resp, path)
     # TODO:
 
-def check_vim_update():
-    url = CHECK_URL
-    path = LOCAL_FILE
-
+def check_vim_update(url, path):
     (status, conn, resp) = check_upstatus(url, path)
     try:
         if status == UPSTATUS_UPDATED:
@@ -75,4 +77,4 @@ def check_vim_update():
         conn.close()
 
 if __name__ == '__main__':
-    check_vim_update()
+    check_vim_update(CHECK_URL, LOCAL_FILE)
