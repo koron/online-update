@@ -9,6 +9,7 @@ import httplib
 import logging
 import os
 import time
+from zipfile import ZipFile
 
 URLROOT = 'http://files.kaoriya.net/vim/'
 VIMZIP = 'vim73-kaoriya-win64.zip'
@@ -20,6 +21,10 @@ LOCAL_FILE = VIMZIP
 UPSTATUS_STAY       = 0
 UPSTATUS_UPDATED    = 1
 UPSTATUS_ERROR      = 2
+
+UNPACK_STATUS_KEEP      = 0
+UNPACK_STATUS_EXTRACT   = 1
+UNPACK_STATUS_UNKNOWN   = 2
 
 logging.basicConfig(level=logging.INFO)
 
@@ -65,9 +70,37 @@ def download_as(resp, path):
     finally:
         f.close()
 
-def unpack_zip(zippath, outdir):
-    # TODO:
+def zipinfo2fileinfo(zipinfo, outdir):
+    # TODO
+    return None
+
+def newinfo2oldinfo(newinfo):
+    # TODO
+    return None
+
+def check_unpack_status(newinfo, oldinfo):
+    # TODO
+    return UNPACK_STATUS_KEEP
+
+def unpack_entry(zipfile, newinfo):
+    # TODO
     pass
+
+def unpack_zip(zippath, outdir):
+    zfile = ZipFile(zippath, 'r')
+    for zinfo in zfile.infolist():
+        newinfo = zipinfo2fileinfo(zinfo, outdir)
+        oldinfo = newinfo2oldinfo(newinfo)
+        status = check_unpack_status(newinfo, oldinfo)
+        if status == UNPACK_STATUS_KEEP:
+            pass
+        elif status == UNPACK_STATUS_EXTRACT:
+            unpack_entry(zfile, newinfo)
+        elif status == UNPACK_STATUS_UNKNOWN:
+            pass
+        else:
+            logging.critical('unknown unpack_status: %d', status)
+    zfile.close()
 
 def update_vim(resp, path, outdir):
     download_as(resp, path)
@@ -82,4 +115,5 @@ def check_vim_update(url, path, outdir):
         conn.close()
 
 if __name__ == '__main__':
-    check_vim_update(CHECK_URL, LOCAL_FILE, OUTDIR)
+    #check_vim_update(CHECK_URL, LOCAL_FILE, OUTDIR)
+    unpack_zip(LOCAL_FILE, OUTDIR)
