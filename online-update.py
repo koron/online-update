@@ -12,6 +12,7 @@ import time
 
 URLROOT = 'http://files.kaoriya.net/vim/'
 VIMZIP = 'vim73-kaoriya-win64.zip'
+OUTDIR = 'var/vim73w64'
 
 CHECK_URL = URLROOT + VIMZIP
 LOCAL_FILE = VIMZIP
@@ -64,11 +65,15 @@ def download_as(resp, path):
     finally:
         f.close()
 
-def update_vim(resp, path):
-    download_as(resp, path)
+def unpack_zip(zippath, outdir):
     # TODO:
+    pass
 
-def check_vim_update(url, path):
+def update_vim(resp, path, outdir):
+    download_as(resp, path)
+    unpack_zip(path, outdir)
+
+def check_vim_update(url, path, outdir):
     (status, conn, resp) = check_upstatus(url, path)
     try:
         if status == UPSTATUS_UPDATED:
@@ -77,4 +82,4 @@ def check_vim_update(url, path):
         conn.close()
 
 if __name__ == '__main__':
-    check_vim_update(CHECK_URL, LOCAL_FILE)
+    check_vim_update(CHECK_URL, LOCAL_FILE, OUTDIR)
