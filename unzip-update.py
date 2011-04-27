@@ -39,21 +39,24 @@ class ChecksumDatabase:
 
     def __init__(self, path):
         self.path = path
+        self.scannedFiles = []
+        self.registeredFiles = []
 
     def scanDir(self, dir):
-        # TODO:
+        # TODO: ChecksumDatabase.scanDir
         pass
 
     def registerFile(self, fileInfo):
-        # TODO:
+        self.registerFile.append(fileInfo)
         pass
 
     def operations(self):
-        # TODO:
-        pass
+        # TODO: consider scannedFiles.
+        for i in self.registerFile:
+            yield i;
 
     def close(self):
-        # TODO:
+        # TODO: ChecksumDatabase.close
         pass
 
 class FileStorage:
@@ -71,15 +74,15 @@ class FileStorage:
             logging.warning('Unknown optype: %d', op.type)
 
     def _update(self, op):
-        # TODO:
+        # TODO: FileStorage._update
         pass
 
     def _delete(self, op):
-        # TODO:
+        # TODO: FileStorage._delete
         pass
 
 def isFile(zipInfo):
-    # TODO:
+    # TODO: isFile
     return True
 
 def unpackZip(zipPath, outDir, checkPath):
@@ -91,7 +94,7 @@ def unpackZip(zipPath, outDir, checkPath):
     zfile = ZipFile(zipPath, 'r')
     for zinfo in zfile.infolist():
         if isFile(zinfo):
-            checkDb.registerFile(zinfo)
+            checkDb.registerFile(FileInfo.fromZipInfo(zinfo))
 
     # Update file storage.
     filestore = FileStorage(outDir, zfile)
