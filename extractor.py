@@ -124,6 +124,7 @@ class ExtractionOptimizer:
                 self.knownFiles.append(fileInfo)
 
     def __saveCheck(self):
+        # FIXME: unite into a function.
         (dir, name) = os.path.split(self.path)
         if not os.path.exists(dir):
             os.makedirs(dir)
@@ -200,11 +201,13 @@ class RawExtractor:
     def __update(self, op):
         path = os.path.join(self.baseDir, op.fileInfo.origName)
         logger.debug('update: %s', path)
-        (dir, name) = os.path.split(path)
-        zipname = op.fileInfo.zipFilename
 
+        # FIXME: unite into a function.
+        (dir, name) = os.path.split(path)
         if not os.path.exists(dir):
             os.makedirs(dir)
+
+        zipname = op.fileInfo.zipFilename
         of = open(path, 'wb')
         of.write(self.zipFile.read(zipname))
         of.close()
