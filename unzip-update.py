@@ -19,6 +19,9 @@ class Operation:
         self.type = type
         self.path = path
 
+    def __str__(self):
+        return "type=%d, path=%s" % (self.type, self.path)
+
 class FileInfo:
 
     def __init__(self, name, size, hash):
@@ -26,7 +29,8 @@ class FileInfo:
         self.size = size
         self.hash = hash
 
-    def fromZipInfo(self, zipInfo):
+    @staticmethod
+    def fromZipInfo(zipInfo):
         name = zipInfo.filename
         size = zipInfo.file_size
         crc32 = zipInfo.CRC
@@ -41,22 +45,30 @@ class ChecksumDatabase:
         self.path = path
         self.scannedFiles = []
         self.registeredFiles = []
+        self.__loadCheck()
 
     def scanDir(self, dir):
         # TODO: ChecksumDatabase.scanDir
         pass
 
     def registerFile(self, fileInfo):
-        self.registerFile.append(fileInfo)
+        self.registeredFiles.append(fileInfo)
         pass
 
     def operations(self):
         # TODO: consider scannedFiles.
-        for i in self.registerFile:
-            yield i;
+        for i in self.registeredFiles:
+            yield Operation(Operation.TYPE_UPDATE, i.name)
 
     def close(self):
-        # TODO: ChecksumDatabase.close
+        self.__saveCheck()
+
+    def __loadCheck(self):
+        # TODO: __loadCheck
+        pass
+
+    def __saveCheck(self):
+        # TODO: __saveCheck
         pass
 
 class FileStorage:
@@ -67,18 +79,20 @@ class FileStorage:
 
     def execute(self, op):
         if op.type == Operation.TYPE_UPDATE:
-            self._update(op.path)
+            self.__update(op.path)
         elif op.type == Operation.TYPE_DELETE:
-            self._delete(op.path)
+            self.__delete(op.path)
         else:
             logging.warning('Unknown optype: %d', op.type)
 
-    def _update(self, op):
-        # TODO: FileStorage._update
+    def __update(self, op):
+        print("update: %s" % op)
+        # TODO: FileStorage.__update
         pass
 
-    def _delete(self, op):
-        # TODO: FileStorage._delete
+    def __delete(self, op):
+        print("delete: %s", op)
+        # TODO: FileStorage.__delete
         pass
 
 def isFile(zipInfo):
