@@ -1,3 +1,4 @@
+*.pyc
 tmp
 var
 vim73-kaoriya-win??.zip
