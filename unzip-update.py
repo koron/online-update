@@ -168,7 +168,6 @@ class ExtractionOptimizer:
         return '%s\t%d\t%08x\n' % \
                 (fileInfo.name, fileInfo.size, fileInfo.hash)
 
-# FIXME: Rename class.
 class Extractor:
 
     def __init__(self, baseDir, zipFile):
@@ -191,17 +190,17 @@ class Extractor:
 
     def __unmanage(self, op):
         # Currently, nothing to do.
-        logging.debug("unmanage: %s" % op.fileInfo.name)
+        logging.debug('unmanage: %s', op.fileInfo.name)
         pass
 
     def __skip(self, op):
         # Currently, nothing to do.
-        logging.debug("skip: %s" % op.fileInfo.name)
+        logging.debug('skip: %s', op.fileInfo.name)
         pass
 
     def __update(self, op):
         path = os.path.join(self.baseDir, op.fileInfo.origName)
-        logging.debug("update: %s" % path)
+        logging.debug('update: %s', path)
         (dir, name) = os.path.split(path)
         zipname = op.fileInfo.zipFilename
 
@@ -213,13 +212,13 @@ class Extractor:
 
     def __delete(self, op):
         path = os.path.join(self.baseDir, op.fileInfo.origName)
-        logging.debug("delete: %s" % path)
+        logging.debug('delete: %s', path)
         os.remove(path)
         pass
 
     def __keep(self, op):
         # Currently, nothing to do.
-        logging.debug("keep: %s" % op.fileInfo.name)
+        logging.debug('keep: %s', op.fileInfo.name)
         pass
 
 def isFile(zipInfo):
