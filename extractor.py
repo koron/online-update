@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 
+from zipfile import ZipFile
 import binascii
 import logging
 import os
+
+logger = logging.getLogger('extractor')
 
 class FileInfo:
 
@@ -121,6 +124,10 @@ class ExtractionOptimizer:
                 self.knownFiles.append(fileInfo)
 
     def __saveCheck(self):
+        (dir, name) = os.path.split(self.path)
+        if not os.path.exists(dir):
+            os.makedirs(dir)
+
         f = open(self.path, 'w')
         for fileInfo in self.registeredFiles:
             f.write(ExtractionOptimizer.__format(fileInfo))
@@ -160,7 +167,7 @@ class ExtractionOptimizer:
         return '%s\t%d\t%08x\n' % \
                 (fileInfo.name, fileInfo.size, fileInfo.hash)
 
-class Extractor:
+class RawExtractor:
 
     def __init__(self, baseDir, zipFile):
         self.baseDir = baseDir
@@ -178,21 +185,21 @@ class Extractor:
         elif op.type == ExtractOperation.TYPE_KEEP:
             self.__keep(op)
         else:
-            logging.warning('Unknown optype: %d', op.type)
+            logger.warning('Unknown optype: %d', op.type)
 
     def __unmanage(self, op):
         # Currently, nothing to do.
-        logging.debug('unmanage: %s', op.fileInfo.name)
+        logger.debug('unmanage: %s', op.fileInfo.name)
         pass
 
     def __skip(self, op):
         # Currently, nothing to do.
-        logging.debug('skip: %s', op.fileInfo.name)
+        logger.debug('skip: %s', op.fileInfo.name)
         pass
 
     def __update(self, op):
         path = os.path.join(self.baseDir, op.fileInfo.origName)
-        logging.debug('update: %s', path)
+        logger.debug('update: %s', path)
         (dir, name) = os.path.split(path)
         zipname = op.fileInfo.zipFilename
 
@@ -204,12 +211,45 @@ class Extractor:
 
     def __delete(self, op):
         path = os.path.join(self.baseDir, op.fileInfo.origName)
-        logging.debug('delete: %s', path)
+        logger.debug('delete: %s', path)
         os.remove(path)
         pass
 
     def __keep(self, op):
         # Currently, nothing to do.
-        logging.debug('keep: %s', op.fileInfo.name)
+        logger.debug('keep: %s', op.fileInfo.name)
         pass
 
+class Extractor:
+
+    def __init__(self, zip, unpackDir, optimizeFile):
+        self.zip = zip
+        self.unpackDir = unpackDir
+        self.optimizeFile = optimizeFile
+
+    def extractAll(self):
+        logger.info('extracting now.')
+        # Open database and check existing files.
+        optimizer = ExtractionOptimizer(self.optimizeFile)
+        try:
+            optimizer.scanDir(self.unpackDir)
+            zipFile = ZipFile(self.zip, 'r')
+            try:
+                # Register new files.
+                for zipInfo in zipFile.infolist():
+                    if Extractor.__isFile(zipInfo):
+                        fileInfo = FileInfo.fromZipInfo(zipInfo, 1)
+                        optimizer.registerFile(fileInfo)
+                # Update file storage.
+                extractor = RawExtractor(self.unpackDir, zipFile)
+                for op in optimizer.operations():
+                    extractor.extract(op)
+            finally:
+                zipFile.close()
+        finally:
+            optimizer.close()
+        logger.info('extract completed.')
+
+    @staticmethod
+    def __isFile(zipInfo):
+        return zipInfo.filename[-1:] != '/'

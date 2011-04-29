@@ -3,6 +3,10 @@
 from datetime import datetime
 from urlparse import urlparse
 import httplib
+import logging
+import os
+
+logger = logging.getLogger('downloader')
 
 class Downloader:
 
@@ -21,19 +25,28 @@ class Downloader:
     def download(self):
         response = self.__getReponse()
         if not response:
-            logging.warning('server failure: no response')
+            logger.warning('server failure: no response')
             return Downloader.RESULT_ERROR
         elif response.status == 304:
+            logger.info('no updates.')
             return Downloader.RESULT_NOTMODIFIED
         elif response.status == 200:
+            logger.info('downloading now.')
+
+            # FIXME: unite into a function.
+            (dir, name) = os.path.split(self.outPath)
+            if not os.path.exists(dir):
+                os.makedirs(dir)
+
             f = open(self.outPath, 'wb')
             try:
                 f.write(response.read())
                 return Downloader.RESULT_DOWNLOADED
             finally:
                 f.close()
+            logger.info('download completed.')
         else:
-            logging.warning('server failure: %d %s', \
+            logger.warning('server failure: %d %s', \
                     response.status, response.reason)
             return Downloader.RESULT_ERROR
 
@@ -56,7 +69,7 @@ class Downloader:
         if not self.response:
             connection = self.__getConnection()
             if not connection:
-                logging.warning('server failure: no connection')
+                logger.warning('server failure: no connection')
                 return None
             else:
                 header = self.__getHeader()
