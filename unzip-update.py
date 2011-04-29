@@ -13,20 +13,6 @@ ZIP_PATH = 'tmp/vim73-kaoriya-win64-20110306.zip'
 OUTDIR = 'var/vim73-kaoriya-win64'
 CHECKSUM = 'var/check_sum.txt'
 
-class Operation:
-    TYPE_UNMANAGE = 0
-    TYPE_SKIP     = 1
-    TYPE_UPDATE   = 2
-    TYPE_DELETE   = 3
-    TYPE_KEEP     = 4
-
-    def __init__(self, type, fileInfo):
-        self.type = type
-        self.fileInfo = fileInfo
-
-    def __str__(self):
-        return 'Operation<type=%d,fileInfo=%s>' % (self.type, self.fileInfo)
-
 class FileInfo:
 
     def __init__(self, name, size, hash):
@@ -54,6 +40,21 @@ class FileInfo:
         fileInfo = FileInfo(name, size, crc32)
         fileInfo.zipFilename = zipInfo.filename
         return fileInfo
+
+class ExtractOperation:
+    TYPE_UNMANAGE = 0
+    TYPE_SKIP     = 1
+    TYPE_UPDATE   = 2
+    TYPE_DELETE   = 3
+    TYPE_KEEP     = 4
+
+    def __init__(self, type, fileInfo):
+        self.type = type
+        self.fileInfo = fileInfo
+
+    def __str__(self):
+        return 'ExtractOperation<type=%d,fileInfo=%s>' % \
+                (self.type, self.fileInfo)
 
 class ExtractionOptimizer:
 
@@ -86,9 +87,9 @@ class ExtractionOptimizer:
             if scanned:
                 del scannedTable[i.name]
             if i == scanned:
-                yield Operation(Operation.TYPE_SKIP, i)
+                yield ExtractOperation(ExtractOperation.TYPE_SKIP, i)
             else:
-                yield Operation(Operation.TYPE_UPDATE, i)
+                yield ExtractOperation(ExtractOperation.TYPE_UPDATE, i)
 
         # Check deleted files.
         for i in self.knownFiles:
@@ -98,12 +99,12 @@ class ExtractionOptimizer:
             if scanned:
                 del scannedTable[i.name]
             if i == scanned:
-                yield Operation(Operation.TYPE_DELETE, i)
+                yield ExtractOperation(ExtractOperation.TYPE_DELETE, i)
             else:
-                yield Operation(Operation.TYPE_KEEP, i)
+                yield ExtractOperation(ExtractOperation.TYPE_KEEP, i)
 
         for i in scannedTable.values():
-            yield Operation(Operation.TYPE_UNMANAGE, i)
+            yield ExtractOperation(ExtractOperation.TYPE_UNMANAGE, i)
 
     def close(self):
         self.__saveCheck()
@@ -175,15 +176,15 @@ class Extractor:
         self.zipFile = zipFile
 
     def extract(self, op):
-        if op.type == Operation.TYPE_UNMANAGE:
+        if op.type == ExtractOperation.TYPE_UNMANAGE:
             self.__unmanage(op)
-        elif op.type == Operation.TYPE_SKIP:
+        elif op.type == ExtractOperation.TYPE_SKIP:
             self.__skip(op)
-        elif op.type == Operation.TYPE_UPDATE:
+        elif op.type == ExtractOperation.TYPE_UPDATE:
             self.__update(op)
-        elif op.type == Operation.TYPE_DELETE:
+        elif op.type == ExtractOperation.TYPE_DELETE:
             self.__delete(op)
-        elif op.type == Operation.TYPE_KEEP:
+        elif op.type == ExtractOperation.TYPE_KEEP:
             self.__keep(op)
         else:
             logging.warning('Unknown optype: %d', op.type)
