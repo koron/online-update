@@ -39,3 +39,11 @@ class OnlineUpdater:
             return os.path.getmtime(path)
         else:
             return 0
+
+if __name__ == '__main__':
+    updater = OnlineUpdater( \
+            'http://files.kaoriya.net/vim/vim73-kaoriya-win64.zip', \
+            'var/vim73-kaoriya-win64', \
+            'var/recipe.txt', \
+            'var/vim73.zip')
+    updater.update()
