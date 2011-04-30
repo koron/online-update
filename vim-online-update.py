@@ -15,7 +15,7 @@ def __detectArch(rootdir):
     if os.path.exists(exe):
         arch = pe32.detectArch(exe)
     else:
-        machtype = os.environ.get('MACHTYPE')
+        machtype = os.environ.get('PROCESSOR_ARCHITECTURE')
         if machtype == 'X86':
             arch = pe32.ARCH_WIN32
         elif machtype == 'AMD64':
