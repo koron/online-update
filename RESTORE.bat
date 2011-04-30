@@ -25,18 +25,23 @@ SET PYTHONPATH=%BASEDIR%online-update
 GOTO END_DIR_CHECK
 :END_DIR_CHECK
 
-ECHO Vimの復元中です。しばらくお待ちください。
+ECHO Vimの更新中です。しばらくお待ちください。
 IF EXIST %TARGET_DIR%online-update\var\recipe.txt DEL /F /Q %TARGET_DIR%online-update\var\recipe.txt
 python "%SCRIPT%" %TARGET_DIR%
-REM TODO:エラー処理
-GOTO END_SUCCESS
+IF ERRORLEVEL 2 GOTO END_FAILURE
+IF ERRORLEVEL 1 GOTO END_SUCCESS
+GOTO END_NOTUPDATED
 
 :END_FAILURE
-ECHO Vimの復元に失敗しました。
+ECHO Vimの更新に失敗しました。
+GOTO END
+:END_NOTUPDATED
+ECHO Vimの更新はありませんでした。
 GOTO END
 :END_SUCCESS
-ECHO Vimの復元を完了しました。
+ECHO Vimの更新を完了しました。
 GOTO END
+
 :END
 ECHO 約10秒後にこのウィンドウは自動的に閉じます。
 PING localhost -n 10 > nul

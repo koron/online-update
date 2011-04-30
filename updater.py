@@ -18,6 +18,7 @@ class OnlineUpdater:
         if result == Downloader.RESULT_DOWNLOADED:
             self.__unpack()
             os.remove(self.downloadFile)
+        return result
 
     def __download(self):
         downloader = Downloader(self.url, self.downloadFile, \

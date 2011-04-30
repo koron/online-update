@@ -41,13 +41,15 @@ def __update(rootdir):
         recipe = os.path.join(workdir, 'recipe.txt')
         download = os.path.join(workdir, 'vim73.zip')
         updater = OnlineUpdater(url, rootdir, recipe, download)
-        updater.update()
-    pass
+        return updater.update()
+    else:
+        return 2
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO)
+    #logging.basicConfig(level=logging.INFO)
     if len(sys.argv) < 2:
         # TODO:
         pass
     else:
-        __update(sys.argv[1])
+        retval = __update(sys.argv[1])
+        exit(retval)
