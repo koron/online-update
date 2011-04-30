@@ -2,9 +2,14 @@
 SETLOCAL
 SET BASEDIR=%~dp0
 
-REM TODO:Pythonの有無をチェックする。
+REM Pythonの有無をチェックする。
+python -V
+IF NOT ERRORLEVEL 1 GOTO END_PYTHON_CHECK
+ECHO Vimの自動更新を利用するにはPythonをインストールしてください。
+GOTO END_FAILURE
+:END_PYTHON_CHECK
 
-REM 環境を調査する。
+REM ディレクトリ構成を調査する。
 IF EXIST "%BASEDIR%"vim-online-update.py GOTO FOUND_CURR
 IF EXIST "%BASEDIR%"online-update\vim-online-update.py GOTO FOUND_BOTTOM
 ECHO 更新用スクリプトが見つかりません。
@@ -12,16 +17,15 @@ GOTO END_FAILURE
 :FOUND_CURR
 SET SCRIPT=%BASEDIR%vim-online-update.py
 SET TARGET_DIR=%BASEDIR%var\vim73
-GOTO START_UPDATE
+GOTO END_DIR_CHECK
 :FOUND_BOTTOM
 SET SCRIPT=%BASEDIR%online-update\vim-online-update.py
 SET TARGET_DIR=%BASEDIR%
 SET PYTHONPATH=%BASEDIR%online-update
-GOTO START_UPDATE
+GOTO END_DIR_CHECK
+:END_DIR_CHECK
 
-:START_UPDATE
 ECHO Vimの更新中です。しばらくお待ちください。
-CD "%BASEDIR%"
 python "%SCRIPT%" %TARGET_DIR%
 REM TODO:エラー処理
 GOTO END_SUCCESS

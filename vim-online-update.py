@@ -37,7 +37,7 @@ def __determineUrl(arch):
 def __update(rootdir):
     url = __determineUrl(__detectArch(rootdir))
     if url:
-        workdir = os.path.join(rootdir, 'var', 'online-updater')
+        workdir = os.path.join(rootdir, 'online-update', 'var')
         recipe = os.path.join(workdir, 'recipe.txt')
         download = os.path.join(workdir, 'vim73.zip')
         updater = OnlineUpdater(url, rootdir, recipe, download)
