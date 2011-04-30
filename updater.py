@@ -2,6 +2,7 @@
 
 import logging
 import os
+import sys
 from downloader import Downloader
 from extractor import Extractor
 
@@ -42,9 +43,12 @@ class OnlineUpdater:
             return 0
 
 if __name__ == '__main__':
-    updater = OnlineUpdater( \
-            'http://files.kaoriya.net/vim/vim73-kaoriya-win64.zip', \
-            'var/vim73-kaoriya-win64', \
-            'var/recipe.txt', \
-            'var/vim73.zip')
+    logging.basicConfig(level=logging.DEBUG)
+    if len(sys.argv) < 2:
+        url = 'http://files.kaoriya.net/vim/vim73-kaoriya-win64.zip'
+    else:
+        url = 'http://files.kaoriya.net/vim/vim73-kaoriya-win64-%s.zip' \
+                % sys.argv[1]
+    updater = OnlineUpdater(url, 'var/vim73', \
+            'var/recipe.txt', 'var/vim73.zip')
     updater.update()
