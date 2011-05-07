@@ -17,11 +17,17 @@ class Downloader:
     def __init__(self, inUrl, outPath, modifiedTime=0):
         self.inUrl = inUrl
         self.outPath = outPath
-        self.response = None
         self.modifiedTime = modifiedTime
 
     def download(self):
         response = self.__getReponse()
+        try:
+            return self.__download(response)
+        finally:
+            if response:
+                response.close()
+
+    def __download(self, response):
         if not response:
             logger.warning('server failure: no response')
             return Downloader.RESULT_ERROR
@@ -58,22 +64,19 @@ class Downloader:
             return { 'If-Modified-Since': since }
 
     def __getReponse(self):
-        if not self.response:
-            header = self.__getHeader()
-            request = urllib2.Request(self.inUrl, None, header)
-            try:
-                self.response = urllib2.urlopen(request)
-            except urllib2.HTTPError, e:
-                self.response = e
-            except:
-                logger.warning('server failure: no connection')
-                return None
-        return self.response
+        retval = None
+        header = self.__getHeader()
+        request = urllib2.Request(self.inUrl, None, header)
+        try:
+            retval = urllib2.urlopen(request)
+        except urllib2.HTTPError, e:
+            retval = e
+        except:
+            logger.warning('server failure: no connection')
+        return retval
 
     def close(self):
-        if self.response:
-            self.response.close()
-            self.response = None
+        pass
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
