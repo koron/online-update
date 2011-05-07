@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime
-from urlparse import urlparse
-import httplib
+import urllib2
 import logging
 import os
 import sys
@@ -17,9 +16,7 @@ class Downloader:
 
     def __init__(self, inUrl, outPath, modifiedTime=0):
         self.inUrl = inUrl
-        self.parsedUrl = urlparse(self.inUrl)
         self.outPath = outPath
-        self.connection = None
         self.response = None
         self.modifiedTime = modifiedTime
 
@@ -28,10 +25,10 @@ class Downloader:
         if not response:
             logger.warning('server failure: no response')
             return Downloader.RESULT_ERROR
-        elif response.status == 304:
+        elif response.code == 304:
             logger.info('no updates.')
             return Downloader.RESULT_NOTMODIFIED
-        elif response.status == 200:
+        elif response.code == 200:
             logger.info('downloading now.')
 
             # FIXME: unite into a function.
@@ -48,14 +45,8 @@ class Downloader:
             logger.info('download completed.')
         else:
             logger.warning('server failure: %d %s', \
-                    response.status, response.reason)
+                    response.code, response.msg)
             return Downloader.RESULT_ERROR
-
-    def __getConnection(self):
-        if not self.connection:
-            self.connection = httplib.HTTPConnection(self.parsedUrl[1])
-            #self.connection.set_debuglevel(1)
-        return self.connection
 
     def __getHeader(self):
         if self.modifiedTime == 0:
@@ -68,20 +59,21 @@ class Downloader:
 
     def __getReponse(self):
         if not self.response:
-            connection = self.__getConnection()
-            if not connection:
+            header = self.__getHeader()
+            request = urllib2.Request(self.inUrl, None, header)
+            try:
+                self.response = urllib2.urlopen(request)
+            except urllib2.HTTPError, e:
+                self.response = e
+            except:
                 logger.warning('server failure: no connection')
                 return None
-            else:
-                header = self.__getHeader()
-                connection.request('GET', self.parsedUrl[2], None, header)
-                self.response = connection.getresponse()
         return self.response
 
     def close(self):
-        if self.connection:
-            self.connection.close()
-            self.connection = None
+        if self.response:
+            self.response.close()
+            self.response = None
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
