@@ -5,6 +5,7 @@ from urlparse import urlparse
 import httplib
 import logging
 import os
+import sys
 
 logger = logging.getLogger('downloader')
 
@@ -35,7 +36,7 @@ class Downloader:
 
             # FIXME: unite into a function.
             (dir, name) = os.path.split(self.outPath)
-            if not os.path.exists(dir):
+            if len(dir) > 0 and not os.path.exists(dir):
                 os.makedirs(dir)
 
             f = open(self.outPath, 'wb')
@@ -81,3 +82,14 @@ class Downloader:
         if self.connection:
             self.connection.close()
             self.connection = None
+
+if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO)
+    if len(sys.argv) < 3:
+        exit()
+
+    modtime = 0
+    if len(sys.argv) > 3 and os.path.exists(sys.argv[3]):
+        modtime = os.path.getmtime(sys.argv[3])
+    d = Downloader(sys.argv[1], sys.argv[2], modtime)
+    d.download()
