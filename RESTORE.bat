@@ -26,8 +26,8 @@ GOTO END_DIR_CHECK
 :END_DIR_CHECK
 
 ECHO Vimの更新中です。しばらくお待ちください。
-IF EXIST %TARGET_DIR%online-update\var\recipe.txt DEL /F /Q %TARGET_DIR%online-update\var\recipe.txt
-python "%SCRIPT%" %TARGET_DIR%
+IF EXIST "%TARGET_DIR%"online-update\var\recipe.txt DEL /F /Q "%TARGET_DIR%"online-update\var\recipe.txt
+python "%SCRIPT%" "%TARGET_DIR%"
 IF ERRORLEVEL 2 GOTO END_FAILURE
 IF ERRORLEVEL 1 GOTO END_SUCCESS
 GOTO END_NOTUPDATED
