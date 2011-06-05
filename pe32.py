@@ -27,7 +27,7 @@ def detectArch(path):
     try:
         # IMAGE_NT_HEADERSまで飛ばす.
         head = f.read(2)
-        if head != 'MZ':
+        if head != b'MZ':
             return ARCH_ERROR
         __skip(f, 58)
         offset = __read32(f)
@@ -35,7 +35,7 @@ def detectArch(path):
 
         # IMAGE_OPTIONAL_HEADERまで飛ばす.
         head2 = f.read(2)
-        if head2 != 'PE':
+        if head2 != b'PE':
             return ARCH_ERROR
         __skip(f, 22)
 

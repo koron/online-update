@@ -1,10 +1,15 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime
-import urllib2
 import logging
 import os
 import sys
+
+if sys.version_info >= (3, 0, 0):
+    from urllib.request import Request, urlopen
+    from urllib.error import HTTPError
+else:
+    from urllib2 import HTTPError, Request,urlopen 
 
 logger = logging.getLogger('downloader')
 
@@ -66,10 +71,10 @@ class Downloader:
     def __getReponse(self):
         retval = None
         header = self.__getHeader()
-        request = urllib2.Request(self.inUrl, None, header)
+        request = Request(self.inUrl, None, header)
         try:
-            retval = urllib2.urlopen(request)
-        except urllib2.HTTPError, e:
+            retval = urlopen(request)
+        except HTTPError as e:
             retval = e
         except:
             logger.warning('server failure: no connection')
