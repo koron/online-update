@@ -67,7 +67,6 @@ class ExtractionOptimizer:
 
     def registerFile(self, fileInfo):
         self.registeredFiles.append(fileInfo)
-        pass
 
     def operations(self):
         knownTable = ExtractionOptimizer.__toTable(self.knownFiles)
