@@ -35,6 +35,7 @@ def __determineUrl(arch):
         return None
 
 def __update(rootdir):
+    rootdir = rootdir.strip('"\'')
     url = __determineUrl(__detectArch(rootdir))
     if url:
         workdir = os.path.join(rootdir, 'online-update', 'var')
