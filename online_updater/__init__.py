@@ -3,9 +3,9 @@
 import logging
 import os
 import sys
-from online_updater.downloader import Downloader
-from online_updater.extractor import Extractor
 from online_updater.anchor import Anchor
+from online_updater.downloader import Downloader, Downloader2
+from online_updater.extractor import Extractor
 
 class Updater:
 
