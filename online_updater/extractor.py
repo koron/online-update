@@ -60,10 +60,7 @@ class ExtractionOptimizer:
         self.__loadCheck()
 
     def scanDir(self, dir):
-        try:
-            self.__scanDir(dir, None)
-        except:
-            pass
+        self.__scanDir(dir, None)
 
     def registerFile(self, fileInfo):
         self.registeredFiles.append(fileInfo)
@@ -174,18 +171,23 @@ class RawExtractor:
         self.zipFile = zipFile
 
     def extract(self, op):
-        if op.type == ExtractOperation.TYPE_UNMANAGE:
-            self.__unmanage(op)
-        elif op.type == ExtractOperation.TYPE_SKIP:
-            self.__skip(op)
-        elif op.type == ExtractOperation.TYPE_UPDATE:
-            self.__update(op)
-        elif op.type == ExtractOperation.TYPE_DELETE:
-            self.__delete(op)
-        elif op.type == ExtractOperation.TYPE_KEEP:
-            self.__keep(op)
-        else:
-            logger.warning('Unknown optype: %d', op.type)
+        try:
+            if op.type == ExtractOperation.TYPE_UNMANAGE:
+                self.__unmanage(op)
+            elif op.type == ExtractOperation.TYPE_SKIP:
+                self.__skip(op)
+            elif op.type == ExtractOperation.TYPE_UPDATE:
+                self.__update(op)
+            elif op.type == ExtractOperation.TYPE_DELETE:
+                self.__delete(op)
+            elif op.type == ExtractOperation.TYPE_KEEP:
+                self.__keep(op)
+            else:
+                logger.warning('Unknown optype: %d', op.type)
+            return True
+        except:
+            # FIXME: log an exception.
+            return False
 
     def __unmanage(self, op):
         # Currently, nothing to do.
@@ -214,13 +216,15 @@ class RawExtractor:
     def __delete(self, op):
         path = os.path.join(self.baseDir, op.fileInfo.origName)
         logger.debug('delete: %s', path)
-        os.remove(path)
-        pass
+        try:
+            os.remove(path)
+            return True
+        except:
+            return False
 
     def __keep(self, op):
         # Currently, nothing to do.
         logger.debug('keep: %s', op.fileInfo.name)
-        pass
 
 class Extractor:
 
@@ -236,6 +240,7 @@ class Extractor:
         optimizer.scanDir(self.unpackDir)
         # Open and read zip file.
         zipFile = ZipFile(self.zip, 'r')
+        success = True
         try:
             # Register new files.
             for zipInfo in zipFile.infolist():
@@ -245,13 +250,14 @@ class Extractor:
             # Update files.
             extractor = RawExtractor(self.unpackDir, zipFile)
             for op in optimizer.operations():
-                extractor.extract(op)
+                success &= extractor.extract(op)
             # Commit new fileset.
-            optimizer.commit()
+            if success:
+                optimizer.commit()
         finally:
             zipFile.close()
         logger.info('extract completed.')
-        return True
+        return retval
 
     @staticmethod
     def __isFile(zipInfo):
