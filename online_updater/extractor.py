@@ -99,7 +99,7 @@ class ExtractionOptimizer:
         for i in scannedTable.values():
             yield ExtractOperation(ExtractOperation.TYPE_UNMANAGE, i)
 
-    def close(self):
+    def commit(self):
         self.__saveCheck()
 
     def __scanDir(self, root, subdir):
@@ -233,23 +233,23 @@ class Extractor:
         logger.info('extracting now.')
         # Open database and check existing files.
         optimizer = ExtractionOptimizer(self.optimizeFile)
+        optimizer.scanDir(self.unpackDir)
+        # Open and read zip file.
+        zipFile = ZipFile(self.zip, 'r')
         try:
-            optimizer.scanDir(self.unpackDir)
-            zipFile = ZipFile(self.zip, 'r')
-            try:
-                # Register new files.
-                for zipInfo in zipFile.infolist():
-                    if Extractor.__isFile(zipInfo):
-                        fileInfo = FileInfo.fromZipInfo(zipInfo, 1)
-                        optimizer.registerFile(fileInfo)
-                # Update file storage.
-                extractor = RawExtractor(self.unpackDir, zipFile)
-                for op in optimizer.operations():
-                    extractor.extract(op)
-            finally:
-                zipFile.close()
+            # Register new files.
+            for zipInfo in zipFile.infolist():
+                if Extractor.__isFile(zipInfo):
+                    fileInfo = FileInfo.fromZipInfo(zipInfo, 1)
+                    optimizer.registerFile(fileInfo)
+            # Update files.
+            extractor = RawExtractor(self.unpackDir, zipFile)
+            for op in optimizer.operations():
+                extractor.extract(op)
+            # Commit new fileset.
+            optimizer.commit()
         finally:
-            optimizer.close()
+            zipFile.close()
         logger.info('extract completed.')
         return True
 
