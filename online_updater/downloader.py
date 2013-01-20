@@ -57,8 +57,10 @@ class Downloader2:
         # Parse a HTTP response.
         try:
             if response.code == 304:
+                # No updates.
                 return False
             elif response.code == 200:
+                # Found update, download it.
                 tmp = self.local_cache + '.download'
                 save_as(response, tmp)
                 self.clear()
