@@ -35,8 +35,8 @@ class Updater:
             return False
 
         # Extract local update archive.
-        extractor = Extractor2(download_cache, target_dir, extract_cache)
-        if extractor.extract():
+        extractor = Extractor(download_cache, target_dir, extract_cache)
+        if extractor.extractAll():
             downloader.clear()
         else:
             # TODO: show message to user:  "failed at extract, retry later"

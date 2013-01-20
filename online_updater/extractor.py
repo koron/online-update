@@ -251,6 +251,7 @@ class Extractor:
         finally:
             optimizer.close()
         logger.info('extract completed.')
+        return True
 
     @staticmethod
     def __isFile(zipInfo):
