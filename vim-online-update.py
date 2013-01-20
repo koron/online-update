@@ -7,7 +7,7 @@ import logging
 import os
 import sys
 
-from online_updater import OnlineUpdater
+from online_updater import Updater
 import online_updater.pe32
 
 pe32 = online_updater.pe32
@@ -42,12 +42,16 @@ def __update(rootdir):
     url = __determineUrl(__detectArch(rootdir))
     if url:
         workdir = os.path.join(rootdir, 'online_update', 'var')
-        recipe = os.path.join(workdir, 'recipe.txt')
-        download = os.path.join(workdir, 'vim73.zip')
-        updater = OnlineUpdater(url, rootdir, recipe, download)
+        updater = Updater('vim73', url, rootdir, workdir)
         return updater.update()
     else:
         return 2
+
+def update(target_dir):
+    if __update(sys.argv[1]):
+        print('Updated successfully')
+    else:
+        print('No update found')
 
 if __name__ == '__main__':
     #logging.basicConfig(level=logging.INFO)
@@ -55,5 +59,5 @@ if __name__ == '__main__':
         # TODO:
         pass
     else:
-        retval = __update(sys.argv[1])
+        retval = update(sys.argv[1])
         exit(retval)

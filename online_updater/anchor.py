@@ -7,7 +7,7 @@ class Anchor:
     def __init__(self, path=None):
         self.path = path
 
-    def update():
+    def update(self):
         # Dig a directory if not exists.
         (dir, name) = os.path.split(self.path)
         if len(dir) > 0 and not os.path.exists(dir):

@@ -257,7 +257,7 @@ class Extractor:
         finally:
             zipFile.close()
         logger.info('extract completed.')
-        return retval
+        return success
 
     @staticmethod
     def __isFile(zipInfo):
