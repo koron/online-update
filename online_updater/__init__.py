@@ -6,6 +6,29 @@ import sys
 from online_updater.downloader import Downloader
 from online_updater.extractor import Extractor
 
+class Updater:
+
+    def __init__(self):
+        self.downloader = None
+        self.extractor = None
+
+    def update(self):
+        remote_url = None
+        local_cache = None
+        target_dir = None
+        target_recipe = None
+        downloader = Downloader2(remote_url, local_cache)
+        if not downloader.has():
+            downloader.download()
+        extractor = Extractor2(local_cache, target_dir, target_recipe)
+        if extractor.extract():
+            downloader.clear()
+        return True
+
+    def restore(self):
+        # TODO:
+        return False
+
 class OnlineUpdater:
 
     def __init__(self, url, unpackDir, recipeFile, downloadFile):
