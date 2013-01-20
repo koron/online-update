@@ -5,6 +5,7 @@ import os
 import sys
 from online_updater.downloader import Downloader
 from online_updater.extractor import Extractor
+from online_updater.anchor import Anchor
 
 class Updater:
 
@@ -13,16 +14,33 @@ class Updater:
         self.extractor = None
 
     def update(self):
+        # TODO: setup these configuration variables.
         remote_url = None
-        local_cache = None
+        download_cache = None
         target_dir = None
-        target_recipe = None
-        downloader = Downloader2(remote_url, local_cache)
-        if not downloader.has():
-            downloader.download()
-        extractor = Extractor2(local_cache, target_dir, target_recipe)
+        extract_cache = None
+        anchor_path=None
+
+        # Download update archive.
+        anchor = Anchor(path=anchor_path)
+        downloader = Downloader2(remote_url=remote_url,
+                local_cache=download_cache, pivot_time=anchor.time)
+        if downloader.download():
+            anchor.update()
+        elif downloader.has():
+            # no newer update on remote, but has on local.
+            pass
+        else:
+            # TODO: show message to user: "no updates"
+            return False
+
+        # Extract local update archive.
+        extractor = Extractor2(download_cache, target_dir, extract_cache)
         if extractor.extract():
             downloader.clear()
+        else:
+            # TODO: show message to user:  "failed at extract, retry later"
+            return False
         return True
 
     def restore(self):
