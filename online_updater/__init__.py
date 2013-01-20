@@ -3,8 +3,8 @@
 import logging
 import os
 import sys
-from downloader import Downloader
-from extractor import Extractor
+from online_updater.downloader import Downloader
+from online_updater.extractor import Extractor
 
 class OnlineUpdater:
 

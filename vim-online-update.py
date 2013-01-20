@@ -3,11 +3,14 @@
 
 # Vimのアップデートを確認するプログラム.
 
-from updater import OnlineUpdater
 import logging
 import os
-import pe32
 import sys
+
+from online_updater import OnlineUpdater
+import online_updater.pe32
+
+pe32 = online_updater.pe32
 
 def __detectArch(rootdir):
     arch = pe32.ARCH_UNKNOWN
@@ -38,7 +41,7 @@ def __update(rootdir):
     rootdir = rootdir.strip('"\'')
     url = __determineUrl(__detectArch(rootdir))
     if url:
-        workdir = os.path.join(rootdir, 'online-update', 'var')
+        workdir = os.path.join(rootdir, 'online_update', 'var')
         recipe = os.path.join(workdir, 'recipe.txt')
         download = os.path.join(workdir, 'vim73.zip')
         updater = OnlineUpdater(url, rootdir, recipe, download)

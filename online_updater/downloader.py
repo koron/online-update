@@ -9,7 +9,7 @@ if sys.version_info >= (3, 0, 0):
     from urllib.request import Request, urlopen
     from urllib.error import HTTPError
 else:
-    from urllib2 import HTTPError, Request,urlopen 
+    from urllib2 import HTTPError, Request,urlopen
 
 logger = logging.getLogger('downloader')
 
