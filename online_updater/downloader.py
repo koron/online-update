@@ -4,6 +4,7 @@ from datetime import datetime
 import logging
 import os
 import sys
+import io
 from online_updater.call import call
 
 if sys.version_info >= (3, 0, 0):
@@ -23,18 +24,6 @@ def header(pivot_time):
         since = dt.strftime('%a, %d %b %Y %H:%M:%S GMT')
         return { 'If-Modified-Since': since }
 
-def save_as(response, path):
-    # Dig a directory if not exists.
-    (dir, name) = os.path.split(path)
-    if len(dir) > 0 and not os.path.exists(dir):
-        os.makedirs(dir)
-    # Write response body to a file.
-    f = open(path, 'wb')
-    try:
-        f.write(response.read())
-    finally:
-        f.close()
-
 class Downloader:
 
     def __init__(self, remote_url=None, local_cache=None, pivot_time=0,
@@ -46,11 +35,30 @@ class Downloader:
         self.remote_url = remote_url
         self.local_cache = local_cache
         self.pivot_time = pivot_time
-        # TODO: implement progress callback.
         self.progress = progress
 
     def has(self):
         return os.path.exists(self.local_cache)
+
+    def _save_as(self, response, path):
+        # Dig a directory if not exists.
+        (dir, name) = os.path.split(path)
+        if len(dir) > 0 and not os.path.exists(dir):
+            os.makedirs(dir)
+        # Write response body to a file.
+        f = open(path, 'wb')
+        try:
+            max = int(response.info().getheader('Content-Length', -1))
+            value = 0
+            while True:
+                chunk = response.read(io.DEFAULT_BUFFER_SIZE)
+                if len(chunk) == 0:
+                    break
+                f.write(chunk)
+                value += len(chunk)
+                call(self.progress, 'do_download', value, max)
+        finally:
+            f.close()
 
     def download(self):
         # Emit a HTTP request.
@@ -68,7 +76,7 @@ class Downloader:
                 # Found update, download it.
                 call(self.progress, 'begin_download')
                 tmp = self.local_cache + '.download'
-                save_as(response, tmp)
+                self._save_as(response, tmp)
                 self.clear()
                 os.rename(tmp, self.local_cache)
                 call(self.progress, 'end_download')

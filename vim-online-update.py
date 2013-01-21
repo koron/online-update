@@ -17,6 +17,9 @@ class DebugProgress:
     def begin_download(self, *args):
         print('# begin_download: %s' % str(args))
 
+    def do_download(self, value, max):
+        print('# do_download: %d/%d' % (value, max))
+
     def end_download(self, *args):
         print('# end_download: %s' % str(args))
 
