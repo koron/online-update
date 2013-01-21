@@ -8,29 +8,10 @@ import os
 import sys
 
 from online_updater import Updater
+from online_updater.progress import UpdaterProgress
 import online_updater.pe32
 
 pe32 = online_updater.pe32
-
-class DebugProgress:
-
-    def begin_download(self, *args):
-        print('# begin_download: %s' % str(args))
-
-    def do_download(self, value, max):
-        print('# do_download: %d/%d' % (value, max))
-
-    def end_download(self, *args):
-        print('# end_download: %s' % str(args))
-
-    def begin_extract(self, *args):
-        print('# begin_extract: %s' % str(args))
-
-    def do_extract(self, value, max):
-        print('# do_extract: %d/%d' % (value, max))
-
-    def end_extract(self, *args):
-        print('# end_extract: %s' % str(args))
 
 def __detectArch(rootdir):
     arch = pe32.ARCH_UNKNOWN
@@ -57,6 +38,12 @@ def __determineUrl(arch):
     else:
         return None
 
+class Progress(UpdaterProgress):
+
+    def begin_download(self):
+        print('Found update.')
+        UpdaterProgress.begin_download(self)
+
 def update(target_dir):
     # Determine parameters.
     rootdir = target_dir.strip('"\'')
@@ -67,7 +54,7 @@ def update(target_dir):
     # Execute the update.
     workdir = os.path.join(rootdir, 'online_update', 'var')
     updater = Updater(name='vim73', url=url, target_dir=rootdir,
-            work_dir=workdir, progress=DebugProgress())
+            work_dir=workdir, progress=Progress())
     result = updater.update()
     # Show result message.
     if result == Updater.COMPLETE:
