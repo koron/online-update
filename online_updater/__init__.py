@@ -9,11 +9,24 @@ from online_updater.extractor import Extractor
 
 class Updater:
 
-    def __init__(self, name, url, target_dir, work_dir):
+    COMPLETE, INCOMPLETE, STAY = range(3)
+
+    def __init__(self, name=None, url=None, target_dir=None, work_dir=None,
+            progress=None):
+        if not name:
+            raise Exception('\'name\' is not provided.')
+        if not url:
+            raise Exception('\'url\' is not provided.')
+        if not target_dir:
+            raise Exception('\'target_dir\' is not provided.')
+        if not work_dir:
+            raise Exception('\'work_dir\' is not provided.')
         self.name = name
         self.url = url
         self.target_dir = target_dir
         self.work_dir = work_dir
+        # TODO: implement progress callback.
+        self.progress = progress
 
     def update(self):
         # setup these configuration variables.
@@ -33,18 +46,19 @@ class Updater:
             # no newer update on remote, but has on local.
             pass
         else:
-            # TODO: show message to user: "no updates"
-            return False
+            # no update on both remote and local.
+            return Updater.STAY
 
         # Extract local update archive.
         extractor = Extractor(download_cache, target_dir, extract_cache)
         if extractor.extractAll():
             downloader.clear()
         else:
-            # TODO: show message to user:  "failed at extract, retry later"
-            return False
-        return True
+            # incomplete, retry later
+            # failed at extract, retry later.
+            return Updater.INCOMPLETE
+        return Updater.COMPLETE
 
     def restore(self):
-        # TODO:
+        # FIXME: implement in future.
         return False

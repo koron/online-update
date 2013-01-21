@@ -37,26 +37,30 @@ def __determineUrl(arch):
     else:
         return None
 
-def __update(rootdir):
-    rootdir = rootdir.strip('"\'')
-    url = __determineUrl(__detectArch(rootdir))
-    if url:
-        workdir = os.path.join(rootdir, 'online_update', 'var')
-        updater = Updater('vim73', url, rootdir, workdir)
-        return updater.update()
-    else:
-        return 2
-
 def update(target_dir):
-    if __update(sys.argv[1]):
-        print('Updated successfully')
-    else:
-        print('No update found')
+    # Determine parameters.
+    rootdir = target_dir.strip('"\'')
+    url = __determineUrl(__detectArch(rootdir))
+    if not url:
+        print('Config error')
+        return
+    # Execute the update.
+    workdir = os.path.join(rootdir, 'online_update', 'var')
+    updater = Updater(name='vim73', url=url, target_dir=rootdir,
+            work_dir=workdir)
+    result = updater.update()
+    # Show result message.
+    if result == Updater.COMPLETE:
+        print('Updated successfully.')
+    elif result == Updater.INCOMPLETE:
+        print('Incomplete update, retry later.')
+    elif result == Updater.STAY:
+        print('No updates found.')
 
 if __name__ == '__main__':
     #logging.basicConfig(level=logging.INFO)
     if len(sys.argv) < 2:
-        # TODO:
+        # TODO: show usage.
         pass
     else:
         retval = update(sys.argv[1])
