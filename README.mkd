@@ -1,18 +1,20 @@
-# INSTALL
+# Online Updater for Vim (vim-jp/kaoriya version)
+
+## INSTALL
 
 Put files and directories into the directory which have "vim.exe".
 
 This is the directory image after install.
 
-    {VIM\_INSTALL\_DIR}\\
+    {VIM_INSTALL_DIR}\
       vim.exe
       UPDATE.bat
       RESTORE.bat
       vim-online-update.py
-      online\_update\\
+      online_update\
         {other files and directories}
 
-# USAGE
+## USAGE
 
   a. Double click UPDATE.bat: check and obtain update if exists.
   b. Double click RESTORE.bat: restore broken files.
