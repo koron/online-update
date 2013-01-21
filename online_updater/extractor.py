@@ -4,6 +4,7 @@ from zipfile import ZipFile
 import binascii
 import logging
 import os
+from online_updater.call import call
 
 logger = logging.getLogger('extractor')
 
@@ -58,6 +59,16 @@ class ExtractionOptimizer:
         self.scannedFiles = []
         self.registeredFiles = []
         self.__loadCheck()
+        self._maxSize = 0
+        self._currentIndex = 0
+
+    @property
+    def maxSize(self):
+        return self._maxSize
+
+    @property
+    def currentIndex(self):
+        return self._currentIndex
 
     def scanDir(self, dir):
         self.__scanDir(dir, None)
@@ -68,9 +79,12 @@ class ExtractionOptimizer:
     def operations(self):
         knownTable = ExtractionOptimizer.__toTable(self.knownFiles)
         scannedTable = ExtractionOptimizer.__toTable(self.scannedFiles)
-
+        self._maxSize = len(self.registeredFiles) + len(self.knownFiles) \
+                + len(scannedTable)
+        self._currentIndex = 0
         # Check updated files.
         for i in self.registeredFiles:
+            self._currentIndex += 1
             if i.name in knownTable:
                 del knownTable[i.name]
             scanned = scannedTable.get(i.name)
@@ -83,6 +97,7 @@ class ExtractionOptimizer:
 
         # Check deleted files.
         for i in self.knownFiles:
+            self._currentIndex += 1
             if not knownTable.has_key(i.name):
                 continue
             scanned = scannedTable.get(i.name)
@@ -94,6 +109,7 @@ class ExtractionOptimizer:
                 yield ExtractOperation(ExtractOperation.TYPE_KEEP, i)
 
         for i in scannedTable.values():
+            self._currentIndex += 1
             yield ExtractOperation(ExtractOperation.TYPE_UNMANAGE, i)
 
     def commit(self):
@@ -228,13 +244,15 @@ class RawExtractor:
 
 class Extractor:
 
-    def __init__(self, zip, unpackDir, optimizeFile):
+    def __init__(self, zip, unpackDir, optimizeFile, progress=None):
         self.zip = zip
         self.unpackDir = unpackDir
         self.optimizeFile = optimizeFile
+        # TODO: implement progress callback.
+        self.progress = progress
 
     def extractAll(self):
-        logger.info('extracting now.')
+        call(self.progress, 'begin_extract')
         # Open database and check existing files.
         optimizer = ExtractionOptimizer(self.optimizeFile)
         optimizer.scanDir(self.unpackDir)
@@ -251,12 +269,14 @@ class Extractor:
             extractor = RawExtractor(self.unpackDir, zipFile)
             for op in optimizer.operations():
                 success &= extractor.extract(op)
+                call(self.progress, 'do_extract', optimizer.currentIndex,
+                        optimizer.maxSize)
             # Commit new fileset.
             if success:
                 optimizer.commit()
         finally:
             zipFile.close()
-        logger.info('extract completed.')
+        call(self.progress, 'end_extract')
         return success
 
     @staticmethod

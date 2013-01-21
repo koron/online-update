@@ -25,7 +25,6 @@ class Updater:
         self.url = url
         self.target_dir = target_dir
         self.work_dir = work_dir
-        # TODO: implement progress callback.
         self.progress = progress
 
     def update(self):
@@ -39,7 +38,8 @@ class Updater:
         # Download update archive.
         anchor = Anchor(path=anchor_path)
         downloader = Downloader(remote_url=remote_url,
-                local_cache=download_cache, pivot_time=anchor.time)
+                local_cache=download_cache, pivot_time=anchor.time,
+                progress=self.progress)
         if downloader.download():
             anchor.update()
         elif downloader.has():
@@ -50,7 +50,8 @@ class Updater:
             return Updater.STAY
 
         # Extract local update archive.
-        extractor = Extractor(download_cache, target_dir, extract_cache)
+        extractor = Extractor(download_cache, target_dir, extract_cache,
+                self.progress)
         if extractor.extractAll():
             downloader.clear()
         else:

@@ -4,6 +4,7 @@ from datetime import datetime
 import logging
 import os
 import sys
+from online_updater.call import call
 
 if sys.version_info >= (3, 0, 0):
     from urllib.request import Request, urlopen
@@ -36,7 +37,8 @@ def save_as(response, path):
 
 class Downloader:
 
-    def __init__(self, remote_url=None, local_cache=None, pivot_time=0):
+    def __init__(self, remote_url=None, local_cache=None, pivot_time=0,
+            progress=None):
         if not remote_url:
             raise Exception('\'remote_url\' is not provided.')
         if not local_cache:
@@ -44,6 +46,8 @@ class Downloader:
         self.remote_url = remote_url
         self.local_cache = local_cache
         self.pivot_time = pivot_time
+        # TODO: implement progress callback.
+        self.progress = progress
 
     def has(self):
         return os.path.exists(self.local_cache)
@@ -62,10 +66,12 @@ class Downloader:
                 return False
             elif response.code == 200:
                 # Found update, download it.
+                call(self.progress, 'begin_download')
                 tmp = self.local_cache + '.download'
                 save_as(response, tmp)
                 self.clear()
                 os.rename(tmp, self.local_cache)
+                call(self.progress, 'end_download')
             else:
                 raise Exception('unexpected response: %d' % response.code)
         finally:
