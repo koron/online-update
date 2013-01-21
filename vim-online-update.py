@@ -6,12 +6,14 @@
 import logging
 import os
 import sys
+import gettext
 
 from online_updater import Updater
 from online_updater.progress import UpdaterProgress
 import online_updater.pe32
 
 pe32 = online_updater.pe32
+_ = gettext.gettext
 
 def __detectArch(rootdir):
     arch = pe32.ARCH_UNKNOWN
@@ -41,7 +43,7 @@ def __determineUrl(arch):
 class Progress(UpdaterProgress):
 
     def begin_download(self):
-        print('Found update.')
+        print(_('Found update.'))
         UpdaterProgress.begin_download(self)
 
 def update(target_dir):
@@ -49,7 +51,7 @@ def update(target_dir):
     rootdir = target_dir.strip('"\'')
     url = __determineUrl(__detectArch(rootdir))
     if not url:
-        print('Config error')
+        print(_('Config error'))
         return
     # Execute the update.
     workdir = os.path.join(rootdir, 'online_update', 'var')
@@ -58,11 +60,11 @@ def update(target_dir):
     result = updater.update()
     # Show result message.
     if result == Updater.COMPLETE:
-        print('Updated successfully.')
+        print(_('Updated successfully.'))
     elif result == Updater.INCOMPLETE:
-        print('Incomplete update, retry later.')
+        print(_('Incomplete update, retry later.'))
     elif result == Updater.STAY:
-        print('No updates found.')
+        print(_('No updates found.'))
 
 if __name__ == '__main__':
     #logging.basicConfig(level=logging.INFO)
