@@ -54,7 +54,7 @@ def update(target_dir):
         print(_('Config error'))
         return
     # Execute the update.
-    workdir = os.path.join(rootdir, 'online_update', 'var')
+    workdir = os.path.join(rootdir, 'online_updater', 'var')
     updater = Updater(name='vim73', url=url, target_dir=rootdir,
             work_dir=workdir, progress=Progress())
     result = updater.update()
