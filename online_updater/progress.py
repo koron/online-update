@@ -26,7 +26,7 @@ class StdoutProgress:
 
     def end(self):
         if self.current < self.size:
-            sys.stdout.write('-' * (self.current - self.current))
+            sys.stdout.write('-' * (self.size - self.current))
         sys.stdout.write('\n')
         sys.stdout.flush()
 
