@@ -3,11 +3,17 @@
 
 # Vimのアップデートを確認するプログラム.
 
-from updater import OnlineUpdater
 import logging
 import os
-import pe32
 import sys
+import gettext
+
+from online_updater import Updater
+from online_updater.progress import UpdaterProgress
+import online_updater.pe32
+
+pe32 = online_updater.pe32
+_ = gettext.gettext
 
 def __detectArch(rootdir):
     arch = pe32.ARCH_UNKNOWN
@@ -34,23 +40,37 @@ def __determineUrl(arch):
     else:
         return None
 
-def __update(rootdir):
-    rootdir = rootdir.strip('"\'')
+class Progress(UpdaterProgress):
+
+    def begin_download(self):
+        print(_('Found update.'))
+        UpdaterProgress.begin_download(self)
+
+def update(target_dir):
+    # Determine parameters.
+    rootdir = target_dir.strip('"\'')
     url = __determineUrl(__detectArch(rootdir))
-    if url:
-        workdir = os.path.join(rootdir, 'online-update', 'var')
-        recipe = os.path.join(workdir, 'recipe.txt')
-        download = os.path.join(workdir, 'vim73.zip')
-        updater = OnlineUpdater(url, rootdir, recipe, download)
-        return updater.update()
-    else:
-        return 2
+    if not url:
+        print(_('Config error'))
+        return
+    # Execute the update.
+    workdir = os.path.join(rootdir, 'online_updater', 'var')
+    updater = Updater(name='vim73', url=url, target_dir=rootdir,
+            work_dir=workdir, progress=Progress())
+    result = updater.update()
+    # Show result message.
+    if result == Updater.COMPLETE:
+        print(_('Updated successfully.'))
+    elif result == Updater.INCOMPLETE:
+        print(_('Incomplete update, retry later.'))
+    elif result == Updater.STAY:
+        print(_('No updates found.'))
 
 if __name__ == '__main__':
     #logging.basicConfig(level=logging.INFO)
     if len(sys.argv) < 2:
-        # TODO:
+        # TODO: show usage.
         pass
     else:
-        retval = __update(sys.argv[1])
+        retval = update(sys.argv[1])
         exit(retval)
