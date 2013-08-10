@@ -33,10 +33,10 @@ def __detectArch(rootdir):
 def __determineUrl(arch):
     if arch == pe32.ARCH_WIN32:
         logging.info('detected WIN32 version')
-        return 'http://files.kaoriya.net/vim/vim73-kaoriya-win32.zip'
+        return 'http://files.kaoriya.net/vim/vim74-kaoriya-win32.zip'
     elif arch == pe32.ARCH_WIN64:
         logging.info('detected WIN64 version')
-        return 'http://files.kaoriya.net/vim/vim73-kaoriya-win64.zip'
+        return 'http://files.kaoriya.net/vim/vim74-kaoriya-win64.zip'
     else:
         return None
 
@@ -55,7 +55,7 @@ def update(target_dir):
         return
     # Execute the update.
     workdir = os.path.join(rootdir, 'online_updater', 'var')
-    updater = Updater(name='vim73', url=url, target_dir=rootdir,
+    updater = Updater(name='vim74', url=url, target_dir=rootdir,
             work_dir=workdir, progress=Progress())
     result = updater.update()
     # Show result message.
