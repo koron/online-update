@@ -48,7 +48,7 @@ class Downloader:
         # Write response body to a file.
         f = open(path, 'wb')
         try:
-            max = int(response.info().getheader('Content-Length', -1))
+            max = int(response.headers['Content-Length'])
             value = 0
             while True:
                 chunk = response.read(io.DEFAULT_BUFFER_SIZE)

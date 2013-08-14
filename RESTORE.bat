@@ -18,8 +18,8 @@ SET SCRIPT=%BASEDIR%vim-online-update.py
 SET TARGET_DIR=%BASEDIR%
 
 REM データファイル削除。
-IF EXIST "%TARGET_DIR%"online_updater\var\vim73-anchor.txt DEL /F /Q "%TARGET_DIR%"online_updater\var\vim73-anchor.txt
-IF EXIST "%TARGET_DIR%"online_updater\var\vim73-recipe.txt DEL /F /Q "%TARGET_DIR%"online_updater\var\vim73-recipe.txt
+IF EXIST "%TARGET_DIR%"online_updater\var\vim74-anchor.txt DEL /F /Q "%TARGET_DIR%"online_updater\var\vim74-anchor.txt
+IF EXIST "%TARGET_DIR%"online_updater\var\vim74-recipe.txt DEL /F /Q "%TARGET_DIR%"online_updater\var\vim74-recipe.txt
 
 REM スクリプト実行。
 python "%SCRIPT%" "%TARGET_DIR%"
