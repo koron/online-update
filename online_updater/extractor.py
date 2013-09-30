@@ -98,7 +98,7 @@ class ExtractionOptimizer:
         # Check deleted files.
         for i in self.knownFiles:
             self._currentIndex += 1
-            if not knownTable.has_key(i.name):
+            if not i.name in knownTable:
                 continue
             scanned = scannedTable.get(i.name)
             if scanned:
